@@ -15,7 +15,7 @@
 
 % dada =load('denoised_data.mat','denoised_data')
 
-function [vec_all,vec_all_ori,Rxx_noisy,angle_doa]=DLtestDataGenerator(s,num_sample,SNR,M0,nsnapshot,K,lambda)
+function [vec_all,vec_all_ori,Rxx_noisy,angle_doa]=DL_testDataGenerator(s,num_sample,SNR,M0,nsnapshot,K,lambda)
 signalPower = 1;
 %% Random Angle Generation
 if K == 1
@@ -89,11 +89,9 @@ for snr = 1 : length(SNR)
 end
 %% Prepare for the DL model
 % Save Path
-%     dataPath = '/home/hymc/bf_test/code_matlab/DOA_deeplearning/0107/test/test_data';
-%     labelPath = '/home/hymc/bf_test/code_matlab/DOA_deeplearning/0107/test/test_label';
-dataPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/0107/test/test_data';
-originPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/0107/test/test_origin_data';
-labelPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/0107/test/test_label';
+dataPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\2022_01_21\test\train_data';
+originPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\2022_01_21\test\origin_data';
+labelPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\2022_01_21\test\test_label';
 %% Generate test data: Shuffle
 test_data = vec_all.'; % make the data conform to numsample by (number antenna element^2(noisy))
 % Generate random number

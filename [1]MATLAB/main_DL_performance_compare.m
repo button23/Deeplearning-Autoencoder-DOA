@@ -16,10 +16,10 @@ SNR = 10;
 
 s = sqrt(signalPower/2)*randn(1,K)+sqrt(signalPower/2)*1i*randn(1,K);
 %% Create training data
-[~,angle_doa_train] = DLtrainDataGenerator(s,num_sample*5,SNR,M0,nsnapshot,K,lambda);
+[~,angle_doa_train] = DL_trainDataGenerator(s,num_sample*5,SNR,M0,nsnapshot,K,lambda);
 
 %% Create test data
-[vec_noisy,vec_origin,Rxx_noisy_test,angle_doa_test] = DLtestDataGenerator(s,num_sample,SNR,M0,nsnapshot,K,lambda);
+[vec_noisy,vec_origin,Rxx_noisy_test,angle_doa_test] = DL_testDataGenerator(s,num_sample,SNR,M0,nsnapshot,K,lambda);
 
 %% Performance Comparison
 %% Restore the SCM from denoised vector by autoencoder

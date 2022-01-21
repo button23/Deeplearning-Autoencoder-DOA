@@ -12,7 +12,7 @@
 %   denoised_matrix     The denoised sample covariance matrix
 
 
-function [denoised_matrix]=vec2SCM(num_sample,SNR,M0)
+function [denoised_matrix]=DL_vec_2_SCM(num_sample,SNR,M0)
     % import the denoised vector 
     dataPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/0107/result/denoised_data.mat';
     input_data = load(dataPath);
