@@ -10,19 +10,17 @@ cf = 2.45e9; % 10e6 2.45e9
 lambda = physconst('LightSpeed') / cf;
 M0 = 20; % Total number of antenna elements
 nsnapshot = 1000;
-K = 1; % # of source signal
+K = 2; % # of source signal
 num_sample = 1000; % number of samples
 signalPower = 1; % Signal power
 SNR = -20:20;
 operSys = 'WINDOWS';
-randn('seed',23);
-s = sqrt(signalPower / 2) * randn(1, K) + sqrt(signalPower / 2) * 1i * randn(1, K);
 
 %% Generate training and test datasets
 % Create training data
-[vec_noisy_train,vec_origin_train,Rxx_noisy_train,angle_doa_train] = DL_DataGenerator(s,'train',operSys,num_sample*5,SNR,M0,nsnapshot,K,lambda);
+[vec_noisy_train,vec_origin_train,Rxx_noisy_train,angle_doa_train] = DL_DataGenerator(signalPower,'train',operSys,num_sample*5,SNR,M0,nsnapshot,K,lambda,1);
 % Create test data
-[vec_noisy_test,vec_origin_test,Rxx_noisy_test,angle_doa_test] = DL_DataGenerator(s,'test',operSys,num_sample,SNR,M0,nsnapshot,K,lambda);
+[vec_noisy_test,vec_origin_test,Rxx_noisy_test,angle_doa_test] = DL_DataGenerator(signalPower,'test',operSys,num_sample,SNR,M0,nsnapshot,K,lambda,1);
 %% Import the denoised data from the file
 % Restore the SCM from denoised vector by autoencoder
 

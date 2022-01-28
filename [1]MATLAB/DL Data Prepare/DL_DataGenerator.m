@@ -2,7 +2,7 @@
 % DATE: 2022.01.07 by ZZF
 %      2022.01.21 by ZZF
 % Input:
-%   s:              The signal source
+%   signalPower:    The signal power
 %   dataType:       Training data or test data
 %   operSys         The operating system used by the computer
 %   num_sample:     The number of samples
@@ -11,6 +11,8 @@
 %   nsnapshot:      The number of snapshot
 %   K:              The number of sources
 %   lambda:         The wavelength
+%   random_on:      Whether generate random sources for every sample
+%
 % Output:
 %   vec_all:        The vector data vectorized from noisy SCM
 %   vec_all_ori:    The vector data vectorized from noiseless SCM
@@ -20,9 +22,11 @@
 
 % dada =load('denoised_data.mat','denoised_data')
 
-function [vec_all,vec_all_ori,Rxx_noisy,angle_doa] = DL_DataGenerator(s,dataType,operSys,num_sample,SNR,M0,nsnapshot,K,lambda)
+function [vec_all,vec_all_ori,Rxx_noisy,angle_doa] = DL_DataGenerator(signalPower,dataType,operSys,num_sample,SNR,M0,nsnapshot,K,lambda, random_on)
+%% The signal source
+randn('seed',23);
+s = sqrt(signalPower / 2) * randn(1, K) + sqrt(signalPower / 2) * 1i * randn(1, K);
 
-signalPower = 1;
 %% Random Angle Generation
 if K == 1
     ang1 = randi([-80, 80],num_sample,1);
@@ -36,7 +40,6 @@ end
 % h_Rxx = zeros(M0,M0); %% Here the bug ! this one needs to be moved to loop
 vec_all = zeros(M0^2, num_sample);
 vec_all_ori = zeros(M0^2, num_sample);
-
 Rxx_noisy = zeros(M0,M0,num_sample);
 for snr = 1 : length(SNR)
     tStart = tic;
@@ -49,6 +52,10 @@ for snr = 1 : length(SNR)
         n = 0 : M0-1;
         % Steering matrix (considering the origin is in the center of the ULA)
         A = exp(1i*(n.'-(M0-1)/2)*mu);
+        
+        if random_on == 1 % controlled by the user
+            s = sqrt(signalPower/ 2) * randn(1, K) + sqrt(signalPower / 2) * 1i * randn(1, K); % for random source
+        end
         
         rx_ori = A*s.'; % Received signal at the array
         
