@@ -24,7 +24,7 @@
 
 function [vec_all,vec_all_ori,Rxx_noisy,angle_doa] = DL_DataGenerator(signalPower,dataType,operSys,num_sample,SNR,M0,nsnapshot,K,lambda, random_on)
 %% The signal source
-randn('seed',23);
+% randn('seed',23);
 s = sqrt(signalPower / 2) * randn(1, K) + sqrt(signalPower / 2) * 1i * randn(1, K);
 
 %% Random Angle Generation
