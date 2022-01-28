@@ -14,7 +14,7 @@ K = 1; % # of source signal
 num_sample = 1000; % number of samples
 signalPower = 1; % Signal power
 SNR = -20:20;
-operSys = 'UBUNTU';
+operSys = 'WINDOWS';
 random_on = 1;
 %% Generate training and test datasets
 % Create training data
@@ -26,7 +26,7 @@ random_on = 1;
 
 % import the denoised vector
 if isequal(operSys,'WINDOWS')
-    dataPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/28-Jan-2022/data/result/denoised_data.mat'; % WINDOWS PATH:
+    dataPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\result\denoised_data.mat'; % WINDOWS PATH:
 elseif isequal(operSys,'UBUNTU')
     dataPath = '/home/hymc/[0]Github/data/result/denoised_data.mat'; % MAC PATH:
 else
@@ -38,6 +38,18 @@ denoised_data = input_data.denoised_data;
 % To restore real-valued vector to complex-valued sample covariance matrix.
 [denoised_matrix] = DL_vec_2_SCM(denoised_data, num_sample, SNR, M0);
 % isequal(denoised_matrix,Rxx_noisy_test)
+
+%% Import the test data and label (DOA angle)
+testPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\result\test_data.mat'; % WINDOWS PATH:
+input_data = load(testPath);
+test_data = input_data.test_data;
+
+[Rxx_noisy_test] = DL_vec_2_SCM(test_data, num_sample, SNR, M0);
+
+%%
+labelPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\result\test_label.mat'; % WINDOWS PATH:
+input_data = load(labelPath);
+angle_doa_test = input_data.test_label;
 
 %% Performance Comparison
 angle_denoised = zeros(num_sample, K);
