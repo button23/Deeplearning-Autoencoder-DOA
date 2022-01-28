@@ -17,8 +17,10 @@ snr = append(snr,'dB');
 if isequal(operSys, 'WINDOWS')
     %% WINDOWS
     rootPath = 'C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data';
+elseif isequal(operSys, 'UBUNTU') %% UBUNTU
+    rootPath = '/home/hymc/[0]Github/data';
 else %% MAC
-    rootPath = '/Users/button/Deeplearning-Autoencoder-DOA/data';
+    rootPath = '/Users/button/Deeplearning-Autoencoder-DOA/data'; 
 end
 
 dataName = append(dataType,'_data');

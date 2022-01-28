@@ -9,24 +9,26 @@
 cf = 2.45e9; % 10e6 2.45e9
 lambda = physconst('LightSpeed') / cf;
 M0 = 20; % Total number of antenna elements
-nsnapshot = 1000;
-K = 2; % # of source signal
+nsnapshot = 10;
+K = 1; % # of source signal
 num_sample = 1000; % number of samples
 signalPower = 1; % Signal power
 SNR = -20:20;
-operSys = 'WINDOWS';
-
+operSys = 'UBUNTU';
+random_on = 1;
 %% Generate training and test datasets
 % Create training data
-[vec_noisy_train,vec_origin_train,Rxx_noisy_train,angle_doa_train] = DL_DataGenerator(signalPower,'train',operSys,num_sample*5,SNR,M0,nsnapshot,K,lambda,1);
+[vec_noisy_train,vec_origin_train,Rxx_noisy_train,angle_doa_train] = DL_DataGenerator(signalPower,'train',operSys,num_sample*5,SNR,M0,nsnapshot,K,lambda,random_on);
 % Create test data
-[vec_noisy_test,vec_origin_test,Rxx_noisy_test,angle_doa_test] = DL_DataGenerator(signalPower,'test',operSys,num_sample,SNR,M0,nsnapshot,K,lambda,1);
+[vec_noisy_test,vec_origin_test,Rxx_noisy_test,angle_doa_test] = DL_DataGenerator(signalPower,'test',operSys,num_sample,SNR,M0,nsnapshot,K,lambda,random_on);
 %% Import the denoised data from the file
 % Restore the SCM from denoised vector by autoencoder
 
 % import the denoised vector
 if isequal(operSys,'WINDOWS')
     dataPath = '/Users/button/OneDrive - 한양대학교/[7]Code/[1]Matlab/DOA_deeplearning/28-Jan-2022/data/result/denoised_data.mat'; % WINDOWS PATH:
+elseif isequal(operSys,'UBUNTU')
+    dataPath = '/home/hymc/[0]Github/data/result/denoised_data.mat'; % MAC PATH:
 else
     dataPath = '/Users/button/Deeplearning-Autoencoder-DOA/28-Jan-2022/data/result/denoised_data.mat'; % MAC PATH:
 end
