@@ -23,7 +23,7 @@ random_on = 1;
 [vec_noisy_test,vec_origin_test,Rxx_noisy_test,angle_doa_test] = DL_DataGenerator(signalPower,'test',operSys,num_sample,SNR,M0,nsnapshot,K,lambda,random_on);
 %% Import the denoised data from the file
 % Restore the SCM from denoised vector by autoencoder
-basePath = 'random_two source_10snapshots_1000sample';
+basePath = 'random_two source_500snapshots_1000sample';
 
 % import the denoised vector
 if isequal(operSys,'WINDOWS')
@@ -59,7 +59,7 @@ angle_noisy = zeros(num_sample, K);
 angle_scan = -90:0.01:90; % Scanning angle range
 % the performance of MUSIC using the denoised‰ scan
 
-for i = 1:1000
+for i = 1:length(angle_doa_test)
     close all
     [P_MUSIC_denoised] = MUSIC_DOA(denoised_matrix(:, :,i), M0, lambda, angle_scan, K);
     [P_MUSIC_ori] = MUSIC_DOA(Rxx_noisy_test(:, :, i), M0, lambda, angle_scan, K);
