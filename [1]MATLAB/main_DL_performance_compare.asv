@@ -14,7 +14,6 @@ K = 1; % # of source signal
 num_sample = 500; % number of samples
 signalPower = 1; % Signal power
 SNR = -20:20;
-operSys = 'UBUNTU';
 random_on = 1;
 %% Generate training and test datasets
 % Create training data
@@ -26,33 +25,28 @@ random_on = 1;
 basePath = '8_antenna_500_samples_100_snapshots';
 
 % import the denoised vector
-if isequal(operSys,'WINDOWS')
-    dataPath = fullfile('C:\Users\HYPC300\OneDrive - 한양대학교\GitHub\Deeplearning-Autoencoder-DOA\data\result',basePath,'denoised_data.mat'); % WINDOWS PATH:
-elseif isequal(operSys,'UBUNTU')
-    dataPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[2]Tensorflow/[1]DAE_DOA_implementation/result',basePath,'denoised_data.mat'); % UBUNTU PATH: 
-else
-    dataPath = '/Users/button/Deeplearning-Autoencoder-DOA/28-Jan-2022/data/result/denoised_data.mat'; % MAC PATH:
-end
+dataPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[3]Pytorch/[1]DOA_implementation/result',basePath,'denoised_data.mat'); % UBUNTU PATH: 
+
 input_data = load(dataPath);
 denoised_data = input_data.denoised_data;
 
 % To restore real-valued vector to complex-valued sample covariance matrix.
-% [denoised_matrix] = DL_vec_2_SCM(denoised_data, num_sample, SNR, M0);
-[denoised_matrix] = DL_vec_2_SCM(denoised_data, 1, SNR, M0); % delete
+[denoised_matrix] = DL_vec_2_SCM(denoised_data, num_sample, SNR, M0);
+% [denoised_matrix] = DL_vec_2_SCM(denoised_data, 1, SNR, M0); % delete
 
 % isequal(denoised_matrix,Rxx_noisy_test)
 
 %% Import the test data and label (DOA angle)
-testPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[2]Tensorflow/[1]DAE_DOA_implementation/result',basePath,'test_data.mat'); % WINDOWS PATH:
+testPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[3]Pytorch/[1]DOA_implementation/result',basePath,'test_data.mat'); % UBUNTU PATH: 
 input_data = load(testPath);
 test_data = input_data.test_data;
 
-% [Rxx_noisy_test] = DL_vec_2_SCM(test_data, num_sample, SNR, M0);
-[Rxx_noisy_test] = DL_vec_2_SCM(test_data, 1, SNR, M0); % to delete
+[Rxx_noisy_test] = DL_vec_2_SCM(test_data, num_sample, SNR, M0);
+% [Rxx_noisy_test] = DL_vec_2_SCM(test_data, 1, SNR, M0); % to delete
 
 
 %%
-labelPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[2]Tensorflow/[1]DAE_DOA_implementation/result',basePath,'test_label.mat'); % WINDOWS PATH:
+labelPath = fullfile('/home/hymc/[0]Github/Deeplearning-Autoencoder-DOA/[3]Pytorch/[1]DOA_implementation/result',basePath,'test_label.mat'); % UBUNTU PATH: 
 input_data = load(labelPath);
 angle_doa_test = input_data.test_label;
 
@@ -77,19 +71,19 @@ for i = 1:1000
     
     hold on
     plot(angle_scan, 10 * log10(P_MUSIC_ori / max(P_MUSIC_ori)), 'Linewidth', 1);
-       msg = num2str(-25); % delete
-    xline(-25, '--r', msg, 'LabelOrientation', 'horizontal', ...
-        'LabelHorizontalAlignment', 'right', ...
-        'LabelVerticalAlignment', 'middle',...
-        'LabelOrientation', 'horizontal',...
-        'LineWidth', 1)  % delete
-    
-%     msg = num2str(angle_doa_test(i,1));
-%     xline(angle_doa_test(i, 1), '--r', msg, 'LabelOrientation', 'horizontal', ...
+%        msg = num2str(0); % delete
+%     xline(0, '--r', msg, 'LabelOrientation', 'horizontal', ...
 %         'LabelHorizontalAlignment', 'right', ...
 %         'LabelVerticalAlignment', 'middle',...
 %         'LabelOrientation', 'horizontal',...
-%         'LineWidth', 1)
+%         'LineWidth', 1)  % delete
+    
+    msg = num2str(angle_doa_test(i,1));
+    xline(angle_doa_test(i, 1), '--r', msg, 'LabelOrientation', 'horizontal', ...
+        'LabelHorizontalAlignment', 'right', ...
+        'LabelVerticalAlignment', 'middle',...
+        'LabelOrientation', 'horizontal',...
+        'LineWidth', 1)
 %     msg = num2str(angle_doa_test(i,2));
 %     xline(angle_doa_test(i,2),'--r',msg,'LabelOrientation','horizontal',...
 %         'LabelHorizontalAlignment','center',...
