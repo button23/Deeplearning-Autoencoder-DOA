@@ -7,18 +7,20 @@
 % close all;clc
 % release(spectrumScope);
 % release(radio);
+%     'IPAddress',            '192.168.1.20,192.168.1.21,192.168.1.22,192.168.1.23', ...
+
 radio = comm.SDRuReceiver(...
     'Platform',             'X300', ...
-    'IPAddress',            '192.168.1.20,192.168.1.21,192.168.1.22,192.168.1.23', ...
+    'IPAddress',            '192.168.1.23', ...
     'MasterClockRate',      200e6, ...
     'CenterFrequency',      2.4e9, ...
     'Gain',                 20, ...
-    'DecimationFactor',     500, ...
-    'SamplesPerFrame',      4000, ...
+    'DecimationFactor',     10, ...
+    'SamplesPerFrame',      7680, ...
     'OutputDataType',       'double', ...
     'ClockSource',          'External', ...
     'PPSSource',            'External', ...
-    'ChannelMapping',       [1 2 3 4 5 6 7 8] );
+    'ChannelMapping',       [1 2] );
 
 %% Rx antenna setting
 cf = 2.4e9; % 10e6 2.45e9
@@ -41,6 +43,25 @@ timeScope = timescope('TimeSpanSource','Property','TimeSpan',...
 %     spectrumScope(NormalizedData);
 disp("Reception Started");
 
+%% VHT Configuration
+% Create a format configuration object for a SISO VHT transmission
+cfgVHT = wlanVHTConfig;
+cfgVHT.ChannelBandwidth = 'CBW40'; % Transmitted signal bandwidth
+cfgVHT.NumTransmitAntennas = 1;    % Transmit antennas
+cfgVHT.NumSpaceTimeStreams = 1;    % Space-time streams
+cfgVHT.APEPLength = 2048;          % APEP length in bytes
+cfgVHT.MCS = 5;                    % Single spatial stream, 64-QAM
+fs = wlanSampleRate(cfgVHT);       % Sampling rate
+
+
+% Display the spectrum of the transmitted and received signals. The
+% received signal spectrum is affected by the channel
+spectrumAnalyzer  = dsp.SpectrumAnalyzer('SampleRate',fs, ...
+    'AveragingMethod','Exponential','ForgettingFactor',0.99, ...
+    'YLimits',[-30 10],'ShowLegend',true, ...
+    'ChannelNames',{'Received waveform'});
+
+
 %% Flag setting
 close all
 f_normalize = 0;
@@ -56,43 +77,51 @@ f1 = figure;
 % Compute the fast fourier transform (FFT) of each normalized signal100.
 % Calculate the phase difference between channel 1 and channel 2, channel 1 and channel 3, and channel 1 and channel 4.
 
-NUM_SAMPLE = 10000;
-dataset_wifi = zeros(NUM_SAMPLE,len);
-
-phaseCompensatedData = zeros(nsnapshot, M0);
+NUM_SAMPLE = 100;
+% dataset_wifi = zeros(NUM_SAMPLE,radio.SamplesPerFrame,length(radio.ChannelMapping));
+dataset_wifi = zeros(7680*100,2);
+% phaseCompensatedData = zeros(nsnapshot, M0);
 for num = 1 : NUM_SAMPLE
+% while 1
     [data,len] = step(radio);
-%     rx = wifi_vht_demodulation(cfgVHT,data);
-    dataset_wifi(num,:) = data;
-    
-    if len > 0
-        if f_phaseEst
-            [estimatedPhaseOffset]=phase_corr(data,f_normalize);
-        end
-        % phase offset compensation
-        phaseCompensatedData = data;
-        for i = 1:M0-1
-            phaseCompensatedData(:,i+1) = estimatedPhaseOffset{i}(data(:,i+1));
-        end
-        timeScope(real(phaseCompensatedData));
-        % Enable power measurement.
-        if mod(countScope,100) == 0
-            closeDOAPlot = 0;
-            clf(f1)
-        end
-        %% Doing DOA
-        if ~closeDOAPlot
-            closeDOAPlot = 1;
-            disp('DOA estimation!')
-            %%ind the spacial covariance matrix,Rxx, of the received signal
-            % use the sample average hat{Rxx} to estimate the Rxx
-            phaseCompensatedData_r = phaseCompensatedData.';
-            h_Rxx = phaseCompensatedData_r*phaseCompensatedData_r'/nsnapshot;
-            
-            DOA_run(h_Rxx,lambda,M0,K,L,L_fb,m);
-        end
-    end
-    countScope = countScope + 1;
+
+    spectrumAnalyzer(data)
+    dataset_wifi((num-1)*len+1:num*len,:) = data;
+
+%     tx = dataset_wifi(1,:,1).';
+% 
+%     rx = wifi_vht_demodulation(cfgVHT,tx);
+
+%     if len > 0
+%         if f_phaseEst
+%             [estimatedPhaseOffset]=phase_corr(data,f_normalize);
+%             save('estimatedPhaseOffset','estimatedPhaseOffset')
+%         end
+%         load('estimatedPhaseOffset.mat')
+%         % phase offset compensation
+%         phaseCompensatedData = data;
+%         for i = 1:M0-1
+%             phaseCompensatedData(:,i+1) = estimatedPhaseOffset{i}(data(:,i+1));
+%         end
+    timeScope(real(data));
+%         % Enable power measurement.
+%         if mod(countScope,100) == 0
+%             closeDOAPlot = 0;
+%             clf(f1)
+%         end
+%         %% Doing DOA
+%         if ~closeDOAPlot
+%             closeDOAPlot = 1;
+%             disp('DOA estimation!')
+%             %%ind the spacial covariance matrix,Rxx, of the received signal
+%             % use the sample average hat{Rxx} to estimate the Rxx
+%             phaseCompensatedData_r = phaseCompensatedData.';
+%             h_Rxx = phaseCompensatedData_r*phaseCompensatedData_r'/nsnapshot;
+%             
+%             DOA_run(h_Rxx,lambda,M0,K,L,L_fb,m);
+%         end
+%     end
+%     countScope = countScope + 1;
 end
 release(timeScope);
 release(spectrumScope);

@@ -13,7 +13,7 @@ radio = comm.SDRuTransmitter(...
     'InterpolationFactor',  500, ...
     'ClockSource',          'External', ...
     'PPSSource',            'External', ...
-    'ChannelMapping',       [1 2]);
+    'ChannelMapping',       [1]);
 
 %% Transmit start !
 % Generate a sine wave of 30 kHz for transmission.
@@ -27,7 +27,7 @@ sinewave.SamplesPerFrame = 4000;
 sinewave.OutputDataType = 'double';
 sinewave.ComplexOutput = true;
 data = step(sinewave);
-data_send = [data,data];
+% data_two = [data,data];
 
 % Set the frame duration for the sine wave to transmit based on the samples per frame and sample rate.
 % Create time scope and frequency scope System objects to display time-domain and frequency-domain signals,
@@ -40,14 +40,14 @@ timeScope = timescope('TimeSpanSource','Property','TimeSpan',frameDuration,...
     'SampleRate',sinewave.SampleRate);
 % spectrumScope = dsp.SpectrumAnalyzer('SampleRate',sinewave.SampleRate);
 disp("Transmission Started");
-timeScope((data_send));
+timeScope((data));
 
 % spectrumScope(ltee.waveform);
 
 % Inside a while loop, transmit the sine wave using the tx System object.
 % Display a message when transmission is complete. Release the radio System object.
 while true
-    radio(data_send);  %data  send_data_scale
+    radio(data);  %data  send_data_scale data_two
     %     time = time+frameDuration;
 end
 %

@@ -35,7 +35,7 @@ frameduration = radio.SamplesPerFrame/(radio.MasterClockRate/radio.DecimationFac
 
 timeScope = timescope('TimeSpanSource','Property','TimeSpan',...
     10000*frameduration,'SampleRate',radio.MasterClockRate/500);
-% spectrumScope = dsp.SpectrumAnalyzer('SampleRate',200e6/500);
+spectrumScope = dsp.SpectrumAnalyzer('SampleRate',200e6/500);
 % spectrumScope.ReducePlotRate = true;
 %     spectrumScope(NormalizedData);
 disp("Reception Started");
@@ -43,7 +43,7 @@ disp("Reception Started");
 %% Flag setting
 close all
 f_normalize = 0;
-f_phaseEst = 0;
+f_phaseEst = 1;
 closeMeasurePower = 1;
 
 countScope = 0;
@@ -68,7 +68,7 @@ while 1
         end
                 timeScope(real(phaseCompensatedData));
 
-        
+        spectrumScope(data)
         % Enable power measurement.
         if mod(countScope,100) == 0
             closeMeasurePower = 0;
@@ -89,6 +89,6 @@ while 1
     countScope = countScope + 1;
 end
 %%
-% release(timeScope);
-% release(spectrumScope);
+release(timeScope);
+release(spectrumScope);
 % release(radio);

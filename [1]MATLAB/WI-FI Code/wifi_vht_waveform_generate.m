@@ -18,6 +18,5 @@ txPSDU = randi([0 1],cfgVHT.PSDULength*8,1); % PSDULength in bytes
 tx = wlanWaveformGenerator(txPSDU,cfgVHT);
 
 % Add trailing zeros to allow for channel delay
-tx = [tx; zeros(50,cfgVHT.NumTransmitAntennas)]; %#ok<AGROW>
-
+% tx = [tx; zeros(50,cfgVHT.NumTransmitAntennas)]; %#ok<AGROW>
 end
