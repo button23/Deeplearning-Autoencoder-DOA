@@ -14,13 +14,13 @@ radio = comm.SDRuReceiver(...
     'IPAddress',            '192.168.1.23', ...
     'MasterClockRate',      200e6, ...
     'CenterFrequency',      2.4e9, ...
-    'Gain',                 20, ...
+    'Gain',                 1, ...
     'DecimationFactor',     10, ...
-    'SamplesPerFrame',      7680, ...
+    'SamplesPerFrame',      4000, ...
     'OutputDataType',       'double', ...
     'ClockSource',          'External', ...
     'PPSSource',            'External', ...
-    'ChannelMapping',       [1 2] );
+    'ChannelMapping',       [1] );
 
 %% Rx antenna setting
 cf = 2.4e9; % 10e6 2.45e9
@@ -46,10 +46,10 @@ disp("Reception Started");
 %% VHT Configuration
 % Create a format configuration object for a SISO VHT transmission
 cfgVHT = wlanVHTConfig;
-cfgVHT.ChannelBandwidth = 'CBW40'; % Transmitted signal bandwidth
+cfgVHT.ChannelBandwidth = 'CBW20'; % Transmitted signal bandwidth
 cfgVHT.NumTransmitAntennas = 1;    % Transmit antennas
 cfgVHT.NumSpaceTimeStreams = 1;    % Space-time streams
-cfgVHT.APEPLength = 2048;          % APEP length in bytes
+cfgVHT.APEPLength = 1024;          % APEP length in bytes
 cfgVHT.MCS = 5;                    % Single spatial stream, 64-QAM
 fs = wlanSampleRate(cfgVHT);       % Sampling rate
 
@@ -79,19 +79,34 @@ f1 = figure;
 
 NUM_SAMPLE = 100;
 % dataset_wifi = zeros(NUM_SAMPLE,radio.SamplesPerFrame,length(radio.ChannelMapping));
-dataset_wifi = zeros(7680*100,2);
+dataset_wifi = zeros(4000*NUM_SAMPLE,1);
+save('dataset_wifi.mat','dataset_wifi')
 % phaseCompensatedData = zeros(nsnapshot, M0);
-for num = 1 : NUM_SAMPLE
-% while 1
+% for num = 1 : NUM_SAMPLE
+num = 1;
+while 1
+
     [data,len] = step(radio);
 
     spectrumAnalyzer(data)
-    dataset_wifi((num-1)*len+1:num*len,:) = data;
 
-%     tx = dataset_wifi(1,:,1).';
+    if len == radio.SamplesPerFrame
+        dataset_wifi((num-1)*len+1:num*len,:) = data;
+    end
+    num = num + 1;
+
+    if num == 101
+        num = 1;
+    end   
+
+
+    tx = dataset_wifi(200000:300000);
+    figure
+    plot(real(dataset_wifi(200000:12000+200000)))
+    rxx = dataset_wifi(200000:12000+200000);
 % 
-%     rx = wifi_vht_demodulation(cfgVHT,tx);
-
+    rx = wifi_vht_demodulation(cfgVHT,rxx);
+    scatterplot(reshape(dataset_wifi,[],1))
 %     if len > 0
 %         if f_phaseEst
 %             [estimatedPhaseOffset]=phase_corr(data,f_normalize);
@@ -123,6 +138,6 @@ for num = 1 : NUM_SAMPLE
 %     end
 %     countScope = countScope + 1;
 end
-release(timeScope);
-release(spectrumScope);
+% release(timeScope);
+% release(spectrumScope);
 % release(radio);

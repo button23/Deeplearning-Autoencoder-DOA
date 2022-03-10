@@ -8,7 +8,7 @@
 %
 % Created by ZZF
 % Date: March 9, 2022
-function chanEst = wifi_vht_demodulation(cfgVHT,rx)
+function [eqSym, chanEst] = wifi_vht_demodulation(cfgVHT,rx)
 ind = wlanFieldIndices(cfgVHT);
 fs = wlanSampleRate(cfgVHT);       % Sampling rate
 
@@ -22,20 +22,14 @@ end
 lstf = rx(coarsePktOffset+(ind.LSTF(1):ind.LSTF(2)),:);
 coarseFreqOff = wlanCoarseCFOEstimate(lstf,cfgVHT.ChannelBandwidth);
 rx = helperFrequencyOffset(rx,fs,-coarseFreqOff);
-
-% Extract the non-HT fields and determine fine packet offset
+% 
+% % Extract the non-HT fields and determine fine packet offset
 nonhtfields = rx(coarsePktOffset+(ind.LSTF(1):ind.LSIG(2)),:);
 finePktOffset = wlanSymbolTimingEstimate(nonhtfields,...
     cfgVHT.ChannelBandwidth);
 
 % Determine final packet offset
 pktOffset = coarsePktOffset+finePktOffset;
-
-% If packet detected outwith the range of expected delays from the
-% channel modeling; packet error
-if pktOffset>50
-    disp('packet detected outwith the range of expected delays')
-end
 
 % Extract L-LTF and perform fine frequency offset correction
 lltf = rx(pktOffset+(ind.LLTF(1):ind.LLTF(2)),:);
@@ -53,12 +47,12 @@ chanEstSSPilots = vhtSingleStreamChannelEstimate(vhtltfDemod,cfgVHT);
 % Channel estimate
 chanEst = wlanVHTLTFChannelEstimate(vhtltfDemod,cfgVHT);
 
-figure
-plot(20*log10(abs(chanEst)));
-grid on;
-title('Estimated Channel Response');
-xlabel('Subcarrier index');
-ylabel('Power (dB)');
+% figure
+% plot(20*log10(abs(chanEst)));
+% grid on;
+% title('Estimated Channel Response');
+% xlabel('Subcarrier index');
+% ylabel('Power (dB)');
 
 % Extract VHT Data samples from the waveform
 vhtdata = rx(pktOffset+(ind.VHTData(1):ind.VHTData(2)),:);
@@ -68,7 +62,7 @@ nVarVHT = vhtNoiseEstimate(vhtdata,chanEstSSPilots,cfgVHT);
 
 % Recover the transmitted PSDU in VHT Data
 [~,~,eqSym]  = wlanVHTDataRecover(vhtdata,chanEst,nVarVHT,cfgVHT);
-scatterplot(reshape(eqSym,[],1))
+% scatterplot(reshape(eqSym,[],1))
 % Determine if any bits are in error, i.e. a packet error
 %     biterror = biterr(txPSDU,rxPSDU);
 end
