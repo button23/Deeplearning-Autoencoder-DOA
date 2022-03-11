@@ -1,0 +1,106 @@
+%%
+%
+%  PREFORMATTED
+%  TEXT
+%
+% clear
+% clc
+
+%% Load predicted label
+dataType = 'train';
+rootPath = 'C:\Users\HYPC300\Desktop\ips_data\';
+dataInput = '0421_31pts_ap2';
+dataOutput = '0506_timeDomain_64sample_ap2';
+sampleFileName = "\20M_wifi.txt";
+
+numTrainPoint = 31;
+numTestPoint = 19;
+numFrame = 2000;
+
+%% Path setting
+inputPath = strcat(rootPath, dataInput, '\', dataType, '\');
+outputDataPath = strcat(rootPath, dataOutput, '\', dataType, '\data');
+outputFigurePath = strcat(rootPath, dataOutput, '\', dataType, '\figure');
+
+if isequal (dataType, 'train')
+    numData = numTrainPoint; % numTest
+else
+    numData = numTestPoint; % numTest
+end
+
+%% WiFi parameter initialization
+cfgVHT = wlanVHTConfig('ChannelBandwidth','CBW20','MCS', 0);
+
+if cfgVHT.MCS ==8
+    sampleNum = 2960;
+else
+    sampleNum = 960;
+end
+%% VHT configuration
+ind_Data = wlanFieldIndices(cfgVHT,'VHT-Data');
+ind_VHTltf = wlanFieldIndices(cfgVHT,'VHT-LTF');
+ind_Lltf = wlanFieldIndices(cfgVHT,'L-LTF');
+
+%%
+numOutlier = zeros(numData, 1);
+epss = zeros(numData, 1);
+
+for indexNum = 20 : 20
+    close all;
+    % Load the data from txt file for each point
+    Input = IPS_dataLoad(inputPath, indexNum, sampleFileName);
+    %%  Synchronization
+    % The number of synched frames
+    %     Synchronization, and return the corresponding frame in the packet
+    rxSig_collect = double(IPS_synchronization(Input, cfgVHT, numFrame));
+    
+    %%  Plot the time domain waveform of L-LTF (160samples)
+    lltf_time = abs(rxSig_collect(ind_Lltf(1):ind_Lltf(2),:));
+    lltf_time_reCP = lltf_time(33:end, :, :);
+    
+    % Conform to DL data
+    csi_lltf = lltf_time';
+    
+    lltf_time_rs = reshape(lltf_time_reCP, 64, 2, numFrame);
+    lltf_time_ave = (lltf_time_rs(:,1,:) + lltf_time_rs(:,2,:))/2;
+    lltf_time_ave = squeeze(lltf_time_ave);
+    
+    % Remove zero padding ( L-LTF )
+%     lltf_time = [lltf_time_ave(7:32, :);lltf_time_ave(34:59, :)];
+    
+    
+    % Save lltf variable to .mat file
+    strr = num2str(indexNum);
+    path_ = strcat(outputDataPath, '\lltf\', strr);
+    save(path_, 'csi_lltf') ;
+    
+    % Save lltf figure
+    path_ = strcat(outputFigurePath, '\lltf\', strr);
+    saveas(indexNum, path_, 'png' )
+    
+    %% Channel Estimation (self)
+    % L-LTF FFT
+    rxSig_lega_ltf = rxSig_collect(ind_Lltf(1):ind_Lltf(2),:);
+    % remove CP, remember for LLTF (2OFDM symbols), the CP is first 32 samples
+    rxSig_lega_ltf_rcp = rxSig_lega_ltf(33:end, :);
+    
+    rxSig_2ofdm = reshape(rxSig_lega_ltf_rcp, 64, 2, numFrame);
+    rxSig_lega_ltf_fft = fft(rxSig_2ofdm);
+    rxSig_lega_ltf_fftshift = double(fftshift(rxSig_lega_ltf_fft,1))*1/64 *sqrt(52);
+    % Remove zero padding ( L-LTF )
+    l_llf_fft = [rxSig_lega_ltf_fftshift(7:32, :, :);rxSig_lega_ltf_fftshift(34:59, :, :)];
+    
+    % Channel Estimation (L-LTF)
+    seqLong_L = [1;1;-1;-1;1;1;-1;1;-1;1;1;1;1;1;1;
+        -1;-1;1;1;-1;1;-1;1;1;1;1;1;-1;-1;1;
+        1;-1;1;-1;1;-1;-1;-1;-1;-1;1;1;-1;-1;1;-1;
+        1;-1;1;1;1;1];
+    H_L = (l_llf_fft(:,1, :)+l_llf_fft(:,2, :))/2 .* seqLong_L;
+    
+    ChannelLLTF = squeeze(H_L);
+    
+    % Save lltf variable to .mat file
+    strr = num2str(indexNum+100);
+    path_ = strcat(outputDataPath, '\lltf\', strr);
+    save(path_, 'csi_lltf') ;
+end

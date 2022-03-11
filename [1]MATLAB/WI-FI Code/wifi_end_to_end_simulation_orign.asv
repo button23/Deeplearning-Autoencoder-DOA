@@ -9,7 +9,7 @@ cfgVHT = wlanVHTConfig;
 cfgVHT.ChannelBandwidth = 'CBW20'; % Transmitted signal bandwidth
 cfgVHT.NumTransmitAntennas = 1;    % Transmit antennas
 cfgVHT.NumSpaceTimeStreams = 1;    % Space-time streams
-cfgVHT.APEPLength = 1024;          % APEP length in bytes
+% cfgVHT.APEPLength = 1024;          % APEP length in bytes
 cfgVHT.MCS = 5;                    % Single spatial stream, 64-QAM
 fs = wlanSampleRate(cfgVHT);       % Sampling rate
 
@@ -68,7 +68,7 @@ spectrumAnalyzer  = dsp.SpectrumAnalyzer('SampleRate',fs, ...
 % 6.The VHT Data field is extracted from the synchronized received waveform.
 %   The PSDU is recovered using the extracted field and the channel estimate.
 % snr = 40:5:50;
-snr = 10;
+snr = 40;
 S = numel(snr);
 % parfor i = 1:S % Use 'parfor' to speed up the simulation
 for i = 1:S     % Use 'for' to debug the simulation
@@ -85,8 +85,13 @@ for i = 1:S     % Use 'for' to debug the simulation
     reset(tgacChannel); % Reset channel for different realization
     rx = tgacChannel(tx);
     
+    
     % Add noise
     rx = awgn(rx,snr(i));
+    figure
+    plot(real(rx))
+    hold on 
+    plot(real(dataset_wifi(200:4500)))
     
     spectrumAnalyzer([tx rx]);
     
@@ -153,6 +158,8 @@ for i = 1:S     % Use 'for' to debug the simulation
     % Determine if any bits are in error, i.e. a packet error
     %     biterror = biterr(txPSDU,rxPSDU);
 end
+
+
 
 % constellationDiagram = comm.ConstellationDiagram;
 % constellationDiagram.ReferenceConstellation = wlanReferenceSymbols(cfgVHT);

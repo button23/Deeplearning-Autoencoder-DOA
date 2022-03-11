@@ -117,7 +117,7 @@ nVarVHT = vhtNoiseEstimate(vhtdata,chanEstSSPilots,cfgVHT);
 
 % Recover the transmitted PSDU in VHT Data
 [~,~,eqSym]  = wlanVHTDataRecover(vhtdata,chanEst,nVarVHT,cfgVHT);
-scatterplot(reshape(eqSym,[],1))
+scatterplot(reshape(eqSym(:,1),[],1))
 % Determine if any bits are in error, i.e. a packet error
 %     biterror = biterr(txPSDU,rxPSDU);
 end
