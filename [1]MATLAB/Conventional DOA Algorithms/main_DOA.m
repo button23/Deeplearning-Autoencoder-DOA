@@ -5,17 +5,18 @@ clear;close all;clc
 %% Tx antenna setting
 cf = 2.45e9; % 10e6 2.45e9
 lambda = physconst('LightSpeed') / cf;
-M0 = 5; % Total number of antenna elements
+M0 = 10; % Total number of antenna elements
 nsnapshot = 1000;
-K = 4; % # of source signal
+K = 2; % # of source signal
 angle = [-60,-30,20,50,50,70,-30,-45];
 coherent_on = 0; % if make the sources coherent to each other
 L = K; % # of subarrays for FSS
-L_fb = K; % # of subarrays for FBSS   K/2
+L_fb = K/2; % # of subarrays for FBSS   K/2
 M = M0 - L + 1; % # of antenna elements in a subarray
 m = M0-1; % # of antenna elements in ESPRIT subarrays
-nvar = 0.01; % noise power
-
+nvar = 1; % noise power 0.01
+msg = ['The SNR is ',num2str(1/nvar), 'dB'];
+disp(msg)
 %% Help information
 msg = ['The antenna freedom in FSS is ',num2str(M0-L+1-K)];
 disp(msg)

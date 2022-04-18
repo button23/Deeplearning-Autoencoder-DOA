@@ -1,0 +1,11 @@
+%%
+doa = zeros(3871,1);
+for i = 1 :3871
+    mid = rays{1,i};
+    
+    if isempty(mid)
+        doa(i) = 0;
+    else
+        doa(i) = mid(1).AngleOfArrival(1);
+    end
+end
