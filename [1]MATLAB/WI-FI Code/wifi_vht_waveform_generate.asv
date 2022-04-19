@@ -1,0 +1,18 @@
+%% Generate WIFI VHT frame with rand
+% Mathworks. The purpose of this code is to create VHT packet on the
+% receive end and decodes the received packets received by the USRPs.
+% Created by zzf
+% Date: March 9, 2022
+% clear;clc;close all
+function tx = wifi_vht_waveform_generate(cfgVHT)
+
+rng(0) % Initialize the random number generator
+
+% Generate a packet waveform
+txPSDU = randi([0 1],cfgVHT.PSDULength*8,1); % PSDULength in bytes
+tx = wlanWaveformGenerator(txPSDU,cfgVHT);
+
+% Add trailing zeros to allow for channel delay
+tx = [tx; zeros(50,cfgVHT.NumTransmitAntennas)]; %#ok<AGROW>
+
+end
